@@ -507,6 +507,35 @@ module Formtastic #:nodoc:
       self.select(input_name, collection, set_options(options), html_options)
     end
     alias :boolean_select_input :select_input
+    
+    
+    # Outputs fieldset containing a legend and a list of check boxes as an alternative to a 
+    # multi-select for has_many and has_and_belongs_to_many associations, like assigning a Post to
+    # multiple Categories.  See select_input for more information and options.
+    def check_boxes_input(method, options)
+      collection   = find_collection_for_column(method, options)
+      html_options = set_options(options).merge(options.delete(:input_html) || {})
+    
+      input_name = generate_association_input_name(method)
+      html_options = { :name => "#{@object_name}[#{input_name}][]" }.merge(html_options)
+      value_as_class = options.delete(:value_as_class)
+    
+      list_item_content = collection.map do |c|
+        label = c.is_a?(Array) ? c.first : c
+        value = c.is_a?(Array) ? c.last  : c
+    
+        li_content = template.content_tag(:label,
+          "#{self.check_box(input_name, html_options,
+                    options.delete(:checked_value) || value, options.delete(:unchecked_value) || '')
+        } #{label}", :for => generate_html_id(input_name, value.to_s.downcase)
+        )
+    
+        li_options = value_as_class ? { :class => value.to_s.downcase } : {}
+        template.content_tag(:li, li_content, li_options)
+      end
+    
+      field_set_and_list_wrapping_for_method(method, options, list_item_content)
+    end
 
     # Outputs a timezone select input as Rails' time_zone_select helper. You
     # can give priority zones as option.

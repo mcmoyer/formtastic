@@ -1357,7 +1357,110 @@ describe 'Formtastic' do
           end
         end
       end
-
+      
+      describe ':as => :check_boxes' do
+      
+        #before do
+        #  @new_post.stub!(:author).and_return(@bob)
+        #  @new_post.stub!(:author_id).and_return(@bob.id)
+        #  @new_post.stub!(:column_for_attribute).and_return(mock('column', :type => :integer, :limit => 255))
+        #end
+        #
+        #describe 'for belongs_to association' do
+        #  before do
+        #    semantic_form_for(@new_post) do |builder|
+        #      concat(builder.input(:author, :as => :radio, :value_as_class => true))
+        #    end
+        #  end
+        #
+        #  it 'should have a radio class on the wrapper' do
+        #    output_buffer.should have_tag('form li.radio')
+        #  end
+        #
+        #  it 'should have a post_author_id_input id on the wrapper' do
+        #    output_buffer.should have_tag('form li#post_author_input')
+        #  end
+        #
+        #  it 'should generate a fieldset and legend containing label text for the input' do
+        #    output_buffer.should have_tag('form li fieldset')
+        #    output_buffer.should have_tag('form li fieldset legend')
+        #    output_buffer.should have_tag('form li fieldset legend', /Author/)
+        #  end
+        #
+        #  it 'should generate an ordered list with a list item for each choice' do
+        #    output_buffer.should have_tag('form li fieldset ol')
+        #    output_buffer.should have_tag('form li fieldset ol li', :count => Author.find(:all).size)
+        #  end
+        #
+        #  it 'should have one option with a "selected" attribute' do
+        #    output_buffer.should have_tag('form li input[@checked]', :count => 1)
+        #  end
+        #
+        #  describe "each choice" do
+        #
+        #    it 'should contain a label for the radio input with a nested input and label text' do
+        #      Author.find(:all).each do |author|
+        #        output_buffer.should have_tag('form li fieldset ol li label')
+        #        output_buffer.should have_tag('form li fieldset ol li label', /#{author.to_label}/)
+        #        output_buffer.should have_tag("form li fieldset ol li label[@for='post_author_id_#{author.id}']")
+        #        output_buffer.should have_tag("form li fieldset ol li label input")
+        #      end
+        #    end
+        #
+        #    it 'should use values as li.class when value_as_class is true' do
+        #      Author.find(:all).each do |author|
+        #        output_buffer.should have_tag("form li fieldset ol li.#{author.id} label")
+        #      end
+        #    end
+        #
+        #    it "should have a radio input" do
+        #      Author.find(:all).each do |author|
+        #        output_buffer.should have_tag("form li fieldset ol li label input#post_author_id_#{author.id}")
+        #        output_buffer.should have_tag("form li fieldset ol li label input[@type='radio']")
+        #        output_buffer.should have_tag("form li fieldset ol li label input[@value='#{author.id}']")
+        #        output_buffer.should have_tag("form li fieldset ol li label input[@name='post[author_id]']")
+        #      end
+        #    end
+        #
+        #    it "should mark input as checked if it's the the existing choice" do
+        #      @new_post.author_id.should == @bob.id
+        #      @new_post.author.id.should == @bob.id
+        #      @new_post.author.should == @bob
+        #
+        #      semantic_form_for(@new_post) do |builder|
+        #        concat(builder.input(:author, :as => :radio))
+        #      end
+        #
+        #      output_buffer.should have_tag("form li fieldset ol li label input[@checked='checked']")
+        #    end
+        #  end
+        #
+        #  it 'should generate a fieldset, legend, labels and inputs even if no object is given' do
+        #    output_buffer.replace ''
+        #
+        #    semantic_form_for(:project, :url => 'http://test.host') do |builder|
+        #      concat(builder.input(:author_id, :as => :radio, :collection => Author.find(:all)))
+        #    end
+        #
+        #    output_buffer.should have_tag('form li fieldset legend', /Author/)
+        #    output_buffer.should have_tag('form li fieldset ol li', :count => Author.find(:all).size)
+        #
+        #    Author.find(:all).each do |author|
+        #      output_buffer.should have_tag('form li fieldset ol li label', /#{author.to_label}/)
+        #      output_buffer.should have_tag("form li fieldset ol li label[@for='project_author_id_#{author.id}']")
+        #
+        #      output_buffer.should have_tag("form li fieldset ol li label input#project_author_id_#{author.id}")
+        #      output_buffer.should have_tag("form li fieldset ol li label input[@type='radio']")
+        #      output_buffer.should have_tag("form li fieldset ol li label input[@value='#{author.id}']")
+        #      output_buffer.should have_tag("form li fieldset ol li label input[@name='project[author_id]']")
+        #    end
+        #  end
+        #
+        #end
+      
+      end
+      
+      
       describe 'for collections' do
 
         before do

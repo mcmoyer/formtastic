@@ -238,6 +238,7 @@ h2. The Available Inputs
 * :string (a text field) - default for :string column types
 * :numeric (a text field, like string) - default for :integer, :float and :decimal column types
 * :file (a file field) - default for paperclip or attachment_fu attributes
+* :check_boxes - alternative to :select when a model has_many :through other
 
 The documentation is pretty good for each of these (what it does, what the output is, what the options are, etc) so go check it out.
 
