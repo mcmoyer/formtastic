@@ -10,6 +10,7 @@ module Formtastic #:nodoc:
   class SemanticFormBuilder < ActionView::Helpers::FormBuilder
 
     @@default_text_field_size = 50
+    @@default_numeric_field_size = 12
     @@all_fields_required_by_default = true
     @@required_string = proc { %{<abbr title="#{I18n.t 'formtastic.required', :default => 'required'}">*</abbr>} }
     @@optional_string = ''
@@ -1109,9 +1110,11 @@ module Formtastic #:nodoc:
     #
     def default_string_options(method) #:nodoc:
       column = @object.column_for_attribute(method) if @object.respond_to?(:column_for_attribute)
-
-      if column.nil? || column.limit.nil?
+      
+      if column.nil? || column.limit.nil? 
         { :size => @@default_text_field_size }
+      elsif default_input_type(method) == :numeric
+        { :maxlength => @@default_numeric_field_size, :size => @@default_numeric_field_size }
       else
         { :maxlength => column.limit, :size => [column.limit, @@default_text_field_size].min }
       end
