@@ -20,10 +20,15 @@ module Formtastic #:nodoc:
     @@inline_order = [ :input, :hints, :errors ]
     @@file_methods = [ :file?, :public_filename ]
     @@priority_countries = ["Australia", "Canada", "United Kingdom", "United States"]
+    @@i18n_lookups_by_default = false
 
     cattr_accessor :default_text_field_size, :all_fields_required_by_default, :required_string,
                    :optional_string, :inline_errors, :label_str_method, :collection_label_methods,
-                   :inline_order, :file_methods, :priority_countries
+                   :inline_order, :file_methods, :priority_countries, :i18n_lookups_by_default
+
+    I18N_SCOPES = [ '{{model}}.{{action}}.{{attribute}}',
+                    '{{model}}.{{attribute}}',
+                    '{{attribute}}']
 
     # Keeps simple mappings in a hash
     INPUT_MAPPINGS = {
@@ -347,6 +352,7 @@ module Formtastic #:nodoc:
         options ||= {}
       end
 
+      text = localized_attribute_string(method, text, :label)
       text ||= humanized_attribute_name(method)
       text  << required_or_optional_string(options.delete(:required))
 
@@ -458,7 +464,7 @@ module Formtastic #:nodoc:
     #
     def input_simple(type, method, options)
       html_options = options.delete(:input_html) || {}
-      html_options = default_string_options(method).merge(html_options) if STRING_MAPPINGS.include?(type)
+      html_options = default_string_options(method, type).merge(html_options) if STRING_MAPPINGS.include?(type)
 
       self.label(method, options.slice(:label, :required)) +
       self.send(INPUT_MAPPINGS[type], method, html_options)
@@ -907,6 +913,7 @@ module Formtastic #:nodoc:
     # Generates hints for the given method using the text supplied in :hint.
     #
     def inline_hints_for(method, options) #:nodoc:
+      options[:hint] = localized_attribute_string(method, options[:hint], :hint)
       return if options[:hint].blank?
       template.content_tag(:p, options[:hint], :class => 'inline-hints')
     end
@@ -995,8 +1002,6 @@ module Formtastic #:nodoc:
     # default is a :string, a similar behaviour to Rails' scaffolding.
     #
     def default_input_type(method) #:nodoc:
-      return :string if @object.nil?
-
       column = @object.column_for_attribute(method) if @object.respond_to?(:column_for_attribute)
 
       if column
@@ -1011,10 +1016,13 @@ module Formtastic #:nodoc:
         # otherwise assume the input name will be the same as the column type (eg string_input)
         return column.type
       else
-        obj = @object.send(method) if @object.respond_to?(method)
+        if @object
+          return :select if find_reflection(method)
 
-        return :select   if find_reflection(method)
-        return :file     if obj && @@file_methods.any? { |m| obj.respond_to?(m) }
+          file = @object.send(method) if @object.respond_to?(method)
+          return :file   if file && @@file_methods.any? { |m| file.respond_to?(m) }
+        end
+
         return :password if method.to_s =~ /password/
         return :string
       end
@@ -1108,7 +1116,7 @@ module Formtastic #:nodoc:
     # Generates default_string_options by retrieving column information from
     # the database.
     #
-    def default_string_options(method) #:nodoc:
+    def default_string_options(method, type) #:nodoc:
       column = @object.column_for_attribute(method) if @object.respond_to?(:column_for_attribute)
       
       if column.nil? || column.limit.nil? 
@@ -1163,6 +1171,33 @@ module Formtastic #:nodoc:
         @object.class.human_attribute_name(method.to_s)
       else
         method.to_s.send(@@label_str_method)
+      end
+    end
+
+    def localized_attribute_string(attr_name, attr_value, i18n_key)
+      if attr_value.is_a?(String)
+        attr_value
+      else
+        use_i18n = attr_value.nil? ? @@i18n_lookups_by_default : attr_value
+        if use_i18n
+          model_name = @object.class.name.underscore
+          action_name = template.params[:action].to_s rescue ''
+          attribute_name = attr_name.to_s
+
+          defaults = I18N_SCOPES.collect do |i18n_scope|
+            i18n_path = i18n_scope.dup
+            i18n_path.gsub!('{{action}}', action_name)
+            i18n_path.gsub!('{{model}}', model_name)
+            i18n_path.gsub!('{{attribute}}', attribute_name)
+            i18n_path.gsub!('..', '.')
+            i18n_path.to_sym
+          end
+          defaults << ''
+
+          i18n_value = ::I18n.t(defaults.shift, :default => defaults,
+                                :scope => "formtastic.#{i18n_key.to_s.pluralize}")
+          i18n_value.blank? ? nil : i18n_value
+        end
       end
     end
 
